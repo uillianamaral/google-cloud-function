@@ -27,3 +27,34 @@ exports.saveCar = async (req, res) => {
         return res.status(500).send({ message: err.message });
     }
 };
+
+exports.findVehiclePlaque = async (req, res) => {
+    try {
+
+        if (req.method.toUpperCase() != 'GET') {
+            return res.status(404).send({ message: 'Not Found' });
+        }
+
+        const { plaque } = req.query;
+
+        const firestore = new Firestore({
+            projectId: 'atomic-graph-281200',
+            keyFilename: './key.json',
+        });
+
+        const collection = firestore.collection('joaozinhosCar');
+
+        const query = await collection.where('plaque', '==', plaque).get();
+
+        if (query.empty) {
+            return res.status(404).send({ message: 'Not found any vehicle with this plaque!' });
+        }
+
+        const snapshot = query.docs[0];
+        const data = snapshot.data();
+
+        res.status(200).send(data);
+    } catch (err) {
+        return res.status(500).send({ message: err.message });
+    }
+};
