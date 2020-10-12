@@ -28,6 +28,8 @@ exports.saveCar = async (req, res) => {
     }
 };
 
+const Firestore = require('@google-cloud/firestore');
+
 exports.findVehiclePlaque = async (req, res) => {
     try {
 
@@ -43,6 +45,15 @@ exports.findVehiclePlaque = async (req, res) => {
         });
 
         const collection = firestore.collection('joaozinhosCar');
+
+        if (!plaque) {
+            const allData = await collection.get();
+            const data = [];
+            allData.forEach(snap => {
+                data.push(snap.data());
+            });
+            return res.status(200).send(data);
+        }
 
         const query = await collection.where('plaque', '==', plaque).get();
 
